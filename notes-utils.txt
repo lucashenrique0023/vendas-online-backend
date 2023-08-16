@@ -1,0 +1,12 @@
+## -- Useful Notes -- ##
+
+>> NEST <<
+Generate Module: nest g module city
+Generate Controller: nest g controller city
+Generate Service: nest g service city
+
+>> START APP <<
+npm run start:dev
+
+>> CREATE MIGRATIONS <<
+npx typeorm migration:create ./src/migration/create_table_address
