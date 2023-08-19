@@ -5,9 +5,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Roles } from 'src/decorators/roles.decorators';
-import { UserId } from 'src/decorators/userId.decorator';
-import { UserType } from 'src/user/enum/userType.enum';
+import { Roles } from '../decorators/roles.decorators';
+import { UserId } from '../decorators/userId.decorator';
+import { UserType } from '../user/enum/userType.enum';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dtos/createAddress.dto';
 import { AddressEntity } from './entities/address.entity';
