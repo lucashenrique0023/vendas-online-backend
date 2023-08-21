@@ -8,5 +8,8 @@ Generate Service: nest g service city
 >> START APP <<
 npm run start:dev
 
+>> EXECUTE TEST <<
+npm run test src/user/__tests__/user.service.spec.ts
+
 >> CREATE MIGRATIONS <<
 npx typeorm migration:create ./src/migration/create_table_address
