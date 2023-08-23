@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { CategoryEntity } from '../entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { categoryMock } from '../__mocks__/category.mock';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { createCategoryMock } from '../__mocks__/create-category.mock';
 
 describe('CategoryService', () => {
   let service: CategoryService;
@@ -18,6 +19,7 @@ describe('CategoryService', () => {
           useValue: {
             find: jest.fn().mockResolvedValue([categoryMock]),
             save: jest.fn().mockResolvedValue(categoryMock),
+            findOne: jest.fn().mockRejectedValue(categoryMock),
           }
         }],
     }).compile();
@@ -41,4 +43,28 @@ describe('CategoryService', () => {
     jest.spyOn(categoryRepository, 'find').mockResolvedValue([]);
     expect(service.findAllCategories()).rejects.toThrow(NotFoundException);
   });
+
+  it('should return category after save', async () => {
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(undefined);
+    const category = await service.createCategory(createCategoryMock);
+    expect(category).toEqual(categoryMock);
+  });
+
+  it('should return BadRequestException when new category name is empty', async () => {
+    expect(service.findCategoryByName("")).rejects.toThrow(BadRequestException)
+  });
+
+  it('should return BadRequestException when new category name is undefined', async () => {
+    expect(service.findCategoryByName(undefined)).rejects.toThrow(BadRequestException)
+  });
+
+  it('should return BadRequestException when new category name is null', async () => {
+    expect(service.findCategoryByName(null)).rejects.toThrow(BadRequestException)
+  });
+
+  it('should return ConflictException when new category name already exists', async () => {
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(categoryMock);
+    expect(service.createCategory(categoryMock)).rejects.toThrow(ConflictException);
+  });
+
 });
