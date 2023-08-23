@@ -1,14 +1,17 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UserEntity } from './entities/user.entity';
-import { hash } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserType } from './enum/userType.enum';
+import { ReturnUserDto } from './dtos/returnUser.dto';
+import { UpdateUserPasswordDto } from './dtos/update-pasword.dto';
 
 @Injectable()
 export class UserService {
@@ -28,13 +31,10 @@ export class UserService {
       );
     }
 
-    const saltOrRounds = 10;
-    const passwordHash = await hash(createUserDto.password, saltOrRounds);
-
     return this.userRepository.save({
       ...createUserDto,
       typeUser: UserType.User,
-      password: passwordHash,
+      password: await this.hashPassword(createUserDto.password),
     });
   }
 
@@ -58,17 +58,16 @@ export class UserService {
   }
 
   async findUserById(userId: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
+    return await this.userRepository.findOne({
       where: {
         id: userId,
       },
+    }).then(user => {
+      if (!user) {
+        throw new NotFoundException(`UserId: ${userId} not found.`);
+      }
+      return user;
     });
-
-    if (!user) {
-      throw new NotFoundException(`UserId: ${userId} not found.`);
-    }
-
-    return user;
   }
 
   async findUserByEmail(email: string): Promise<UserEntity> {
@@ -84,4 +83,34 @@ export class UserService {
 
     return user;
   }
+
+  async updateUserPassword(passwordDto: UpdateUserPasswordDto, userId: number): Promise<ReturnUserDto> {
+    const user: UserEntity = await this.findUserById(userId);
+    await this.validateUpdatePassword(passwordDto, user)
+
+    return this.userRepository.save({
+      ...user,
+      password: await this.hashPassword(passwordDto.newPassword)
+    })
+
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    const saltOrRounds = 10;
+    return await hash(password, saltOrRounds);
+  }
+
+  async validateUpdatePassword(passwordDto: UpdateUserPasswordDto, user: UserEntity) {
+    await this.comparePassword(passwordDto.oldPassword, user.password);
+  }
+
+  async comparePassword(literalPassword: string, dbHashedPassword: string) {
+    const passwordMatches: boolean = await compare(literalPassword, dbHashedPassword);
+
+    if (!passwordMatches) {
+      throw new BadRequestException(`The provided password does not match the current password.`)
+    };
+  }
+
+
 }

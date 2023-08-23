@@ -59,7 +59,6 @@ export class ProductService {
       }
     }).then(product => {
       if (!product) {
-        console.log(product)
         throw new NotFoundException(`Product id: ${productId} not found.`)
       }
 
