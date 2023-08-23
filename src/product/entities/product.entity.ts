@@ -1,4 +1,4 @@
-import { CategoryEntity } from 'src/category/entities/category.entity';
+import { CategoryEntity } from '../../category/entities/category.entity';
 import {
   Column,
   CreateDateColumn,
@@ -15,6 +15,9 @@ export class ProductEntity {
 
   @Column({ name: 'category_id', nullable: false })
   categoryId: number;
+
+  @Column({ name: 'name', nullable: false })
+  name: string
 
   @Column({ name: 'price', nullable: false })
   price: number;
