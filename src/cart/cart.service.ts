@@ -28,7 +28,7 @@ export class CartService {
 
     await this.cartProductService.insertCartProduct(cartDto, cart);
 
-    return this.findCartByUserId(userId, true);
+    return cart;
   }
 
   async findCartByUserId(userId: number, isRelations?: boolean): Promise<CartEntity> {
@@ -51,5 +51,12 @@ export class CartService {
 
       return cart;
     })
+  }
+
+  async clearCart(cart: CartEntity): Promise<void> {
+    await this.cartRepository.save({
+      ...cart,
+      active: false
+    });
   }
 }
