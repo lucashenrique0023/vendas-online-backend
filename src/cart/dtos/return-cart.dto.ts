@@ -1,22 +1,16 @@
-import { CartProductEntity } from "src/cart_product/entities/cart-product.entity";
+import { ReturnCartProductDto } from "src/cart_product/dtos/return-cart-product.dto";
 import { CartEntity } from "../entities/cart.entity";
 
 export class ReturnCartDto {
 
   id: number;
-  userId: number;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  cartProduct?: CartProductEntity[];
+  cartProduct?: ReturnCartProductDto[];
 
   constructor(cartEntity: CartEntity) {
     this.id = cartEntity.id;
-    this.userId = cartEntity.userId;
-    this.active = cartEntity.active;
-    this.createdAt = cartEntity.createdAt;
-    this.updatedAt = cartEntity.updatedAt;
-    this.cartProduct = cartEntity?.cartProduct;
+    this.cartProduct = cartEntity.cartProduct ?
+      cartEntity.cartProduct.map(cartProduct => new ReturnCartProductDto(cartProduct)) :
+      undefined;
   }
 
 }
