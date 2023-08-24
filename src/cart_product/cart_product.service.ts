@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CartProductEntity } from './entities/cart-product.entity';
-import { CartDto } from 'src/cart/dtos/cart.dto';
+import { CartDto as UpdateCartDto } from 'src/cart/dtos/cart.dto';
 import { CartEntity } from 'src/cart/entities/cart.entity';
 import { Repository } from 'typeorm';
 import { ProductService } from 'src/product/product.service';
@@ -29,7 +29,7 @@ export class CartProductService {
 
   }
 
-  async createCartProduct(cartDto: CartDto, cartId: number): Promise<CartProductEntity> {
+  async createCartProduct(cartDto: UpdateCartDto, cartId: number): Promise<CartProductEntity> {
     return this.cartProductRepository.save({
       amount: cartDto.amount,
       productId: cartDto.productId,
@@ -37,7 +37,7 @@ export class CartProductService {
     })
   }
 
-  async insertCartProduct(cartDto: CartDto, cartEntity: CartEntity): Promise<CartProductEntity> {
+  async insertCartProduct(cartDto: UpdateCartDto, cartEntity: CartEntity): Promise<CartProductEntity> {
     await this.productService.findProductById(cartDto.productId);
 
     const cartProduct = await this.verifyProductInCart(cartDto.productId, cartEntity.id)
@@ -53,4 +53,22 @@ export class CartProductService {
     })
   }
 
+  async updateCartProduct(updateCartDto: UpdateCartDto, cartEntity: CartEntity): Promise<CartProductEntity> {
+    await this.productService.findProductById(updateCartDto.productId);
+
+    const cartProduct = await this.verifyProductInCart(updateCartDto.productId, cartEntity.id);
+
+    return this.cartProductRepository.save({
+      ...cartProduct,
+      amount: updateCartDto.amount,
+    })
+  }
+
+  async deleteCartProduct(productId: number, cartId: number): Promise<void> {
+    await this.cartProductRepository.delete({ productId, cartId })
+      .then(result => {
+        if (result.affected === 0)
+          throw new NotFoundException(`Could not delete product from cart.`);
+      });
+  }
 }
