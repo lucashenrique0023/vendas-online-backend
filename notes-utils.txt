@@ -13,3 +13,6 @@ npm run test src/user/__tests__/user.service.spec.ts
 
 >> CREATE MIGRATIONS <<
 npx typeorm migration:create ./src/migration/create_table_address
+
+>> VS CODE <<
+Search File: ctrl + p
