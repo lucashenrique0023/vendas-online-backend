@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
+import { OrderEntity } from "src/order/entities/order.entity";
+import { PaymentStatusEntity } from "src/payment_status/entities/payment-status.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance } from "typeorm";
 
 @Entity({ name: 'payment' })
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
@@ -27,5 +29,12 @@ export abstract class PaymentEntity {
 
   @Column({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => OrderEntity, (order) => order.payment)
+  orders?: OrderEntity[];
+
+  @ManyToOne(() => PaymentStatusEntity, (payment) => payment.payments)
+  @JoinColumn({ name: 'status_id', referencedColumnName: 'id' })
+  status?: PaymentStatusEntity;
 
 }
