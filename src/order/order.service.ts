@@ -96,8 +96,6 @@ export class OrderService {
       throw new NotFoundException(`Order: ${orderId} not found.`)
     }
 
-    console.log('order:', order);
-
     return order;
   }
 
