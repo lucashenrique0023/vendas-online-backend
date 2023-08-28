@@ -8,7 +8,7 @@ export class PaymentStatusEntity {
   id: number;
 
   @Column({ name: 'name', nullable: false })
-  cartId: string;
+  name: string;
 
   @Column({ name: 'created_at' })
   createdAt: Date;
