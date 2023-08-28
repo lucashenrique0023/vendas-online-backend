@@ -23,7 +23,7 @@ export class OrderProductEntity {
   @Column({ name: 'amount', nullable: false })
   amount: number;
 
-  @Column({ name: 'price', nullable: false })
+  @Column({ name: 'price', type: 'decimal', nullable: false })
   price: number;
 
   @Column({ name: 'created_at' })

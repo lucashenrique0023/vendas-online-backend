@@ -12,13 +12,13 @@ export abstract class PaymentEntity {
   @Column({ name: 'status_id', nullable: false })
   statusId: number;
 
-  @Column({ name: 'price', nullable: false })
+  @Column({ name: 'price', type: 'decimal', nullable: false })
   price: number;
 
-  @Column({ name: 'final_price', nullable: false })
+  @Column({ name: 'final_price', type: 'decimal', nullable: false })
   finalPrice: number;
 
-  @Column({ name: 'discount', nullable: false })
+  @Column({ name: 'discount', type: 'decimal', nullable: false })
   discount: number;
 
   @Column({ name: 'type', nullable: false })
