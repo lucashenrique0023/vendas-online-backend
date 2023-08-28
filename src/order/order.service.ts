@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentEntity } from 'src/payment/entities/payment.entity';
 import { PaymentService } from 'src/payment/payment.service';
@@ -50,6 +50,30 @@ export class OrderService {
         cartProduct.amount)
       )
     );
+  }
+
+  async findOrdersByUserId(userId: number): Promise<OrderEntity[]> {
+    const orders = await this.orderRepository.find({
+      where: {
+        userId,
+      },
+      relations: {
+        address: true,
+        ordersProduct: {
+          product: true,
+        },
+        payment: {
+          status: true,
+        }
+      }
+    });
+
+    if (!orders || orders.length === 0) {
+      throw new NotFoundException('Orders Not Found');
+
+    }
+
+    return orders;
   }
 
 }
