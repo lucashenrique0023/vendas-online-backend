@@ -13,7 +13,7 @@ export class CategoryController {
 
   @Get()
   async findAllCategories(): Promise<ReturnCategoryDto[]> {
-    return (await this.categoryService.findAllCategories()).map(categoryEntity => new ReturnCategoryDto(categoryEntity));
+    return await this.categoryService.findAllCategories();
   }
 
   @Post()

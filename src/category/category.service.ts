@@ -1,24 +1,43 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryEntity } from './entities/category.entity';
+import { ProductService } from 'src/product/product.service';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dtos/create-category.dto';
+import { CategoryEntity } from './entities/category.entity';
+import { ReturnCategoryDto } from './dtos/return-category.dto';
+import { CategoryCount } from 'src/product/dtos/product-category-count';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>,
+    private readonly productService: ProductService,
   ) {}
 
-  async findAllCategories(): Promise<CategoryEntity[]> {
+  findCategoryAmountInProducts(category: CategoryEntity, countList: CategoryCount[]): number {
+    const count = countList.find(
+      (itemCount) => itemCount.category_id === category.id,
+    );
+
+    if (count) {
+      return count.total;
+    }
+
+    return 0;
+  }
+
+  async findAllCategories(): Promise<ReturnCategoryDto[]> {
     const categories = await this.categoryRepository.find();
+
+    const categoryCount: CategoryCount[] = await this.productService.countProductsByCategoryId();
+
 
     if (!categories || categories.length === 0) {
       throw new NotFoundException('Categories empty')
     }
 
-    return categories;
+    return categories.map((category) => new ReturnCategoryDto(category, this.findCategoryAmountInProducts(category, categoryCount)));
   }
 
   async findCategoryById(categoryId: number): Promise<CategoryEntity> {
