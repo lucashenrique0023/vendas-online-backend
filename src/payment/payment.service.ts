@@ -16,10 +16,12 @@ export class PaymentService {
   constructor(@InjectRepository(PaymentEntity)
   private readonly paymentRepository: Repository<PaymentEntity>) {}
 
-  async createPayment(createOrderDto: CreateOrderDTO,
-    products: ProductEntity[], cart: CartEntity): Promise<PaymentEntity> {
+  calculateFinalPrice(cart: CartEntity, products: ProductEntity[]): number {
+    if (!cart.cartProduct || cart.cartProduct.length === 0) {
+      return 0;
+    }
 
-    const finalPrice = cart.cartProduct?.map((cartProduct: CartProductEntity) => {
+    return cart.cartProduct.map((cartProduct: CartProductEntity) => {
       const product = products.find((product) => product.id === cartProduct.productId);
       if (product) {
         return cartProduct.amount * product.price;
@@ -27,7 +29,12 @@ export class PaymentService {
 
       return 0;
     }).reduce((acumulator, currentValue) => acumulator + currentValue, 0);
+  }
 
+  async createPayment(createOrderDto: CreateOrderDTO,
+    products: ProductEntity[], cart: CartEntity): Promise<PaymentEntity> {
+
+    const finalPrice: number = this.calculateFinalPrice(cart, products);
     if (createOrderDto.amountPayments) {
       const paymentCreditCard = new PaymentCreditCardEntity(PaymentType.Done, finalPrice, 0, finalPrice, createOrderDto);
       return this.paymentRepository.save(paymentCreditCard);
