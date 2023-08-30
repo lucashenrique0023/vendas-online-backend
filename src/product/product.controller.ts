@@ -6,6 +6,7 @@ import { ReturnFullProductDto } from './dtos/return-full-product.dto';
 import { ReturnProductDto } from './dtos/return-product.dto';
 import { ProductService } from './product.service';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { ReturnProductDeliveryPriceDto } from './dtos/return-product-delivery-price.dto';
 
 @Roles(UserType.Admin, UserType.User)
 @Controller('product')
@@ -19,7 +20,7 @@ export class ProductController {
   }
 
   @Get('/:productId/delivery/:cep')
-  async findDeliveryPrice(@Param('productId') productId: number, @Param('cep') cep: string): Promise<any> {
+  async findDeliveryPrice(@Param('productId') productId: number, @Param('cep') cep: string): Promise<ReturnProductDeliveryPriceDto> {
     return this.productService.findDeliveryPrice(cep, productId);
   }
 
