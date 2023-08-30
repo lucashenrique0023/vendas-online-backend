@@ -40,11 +40,17 @@ export class CategoryService {
     return categories.map((category) => new ReturnCategoryDto(category, this.findCategoryAmountInProducts(category, categoryCount)));
   }
 
-  async findCategoryById(categoryId: number): Promise<CategoryEntity> {
+  async findCategoryById(categoryId: number, isRelations?: boolean): Promise<CategoryEntity> {
+    const relations = isRelations ?
+      {
+        products: true,
+      } : undefined;
+
     const category = await this.categoryRepository.findOne({
       where: {
         id: categoryId
-      }
+      },
+      relations,
     })
 
     if (!category) {
@@ -76,5 +82,19 @@ export class CategoryService {
         name,
       }
     });
+  }
+
+  async deleteCategory(categoryId: number): Promise<void> {
+    const category = await this.findCategoryById(categoryId, true);
+
+    if (category?.products?.length > 0) {
+      throw new BadRequestException(`There are products using category id: ${categoryId}.`);
+    }
+
+    return this.categoryRepository.delete(categoryId)
+      .then(result => {
+        if (result.affected === 0)
+          throw new NotFoundException(`Category id: ${categoryId} not found.`);
+      });;
   }
 }
