@@ -2,11 +2,11 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPi
 import { Roles } from '../decorators/roles.decorators';
 import { UserType } from '../user/enum/userType.enum';
 import { CreateProductDto } from './dtos/create-product.dto';
-import { ReturnFullProductDto } from './dtos/return-full-product.dto';
-import { ReturnProductDto } from './dtos/return-product.dto';
-import { ProductService } from './product.service';
-import { UpdateProductDto } from './dtos/update-product.dto';
 import { ReturnProductDeliveryPriceDto } from './dtos/return-product-delivery-price.dto';
+import { ReturnProductDto } from './dtos/return-product.dto';
+import { UpdateProductDto } from './dtos/update-product.dto';
+import { ProductEntity } from './entities/product.entity';
+import { ProductService } from './product.service';
 
 @Roles(UserType.Admin, UserType.User)
 @Controller('product')
@@ -27,8 +27,8 @@ export class ProductController {
   @Post()
   @Roles(UserType.Admin)
   @UsePipes(ValidationPipe)
-  async createProduct(@Body() createProductDto: CreateProductDto): Promise<ReturnFullProductDto> {
-    return new ReturnFullProductDto(await this.productService.createProduct(createProductDto));
+  async createProduct(@Body() createProductDto: CreateProductDto): Promise<ProductEntity> {
+    return this.productService.createProduct(createProductDto);
   }
 
   @Put('/:productId')
@@ -36,8 +36,8 @@ export class ProductController {
   @UsePipes(ValidationPipe)
   async updateProduct(
     @Body() updateProductDto: UpdateProductDto,
-    @Param('productId') productId: number): Promise<ReturnFullProductDto> {
-    return new ReturnFullProductDto(await this.productService.updateProduct(updateProductDto, productId));
+    @Param('productId') productId: number): Promise<ProductEntity> {
+    return this.productService.updateProduct(updateProductDto, productId);
   }
 
   @Delete('/:productId')

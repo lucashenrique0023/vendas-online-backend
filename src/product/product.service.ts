@@ -7,10 +7,9 @@ import { In, Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { CategoryCount } from './dtos/product-category-count';
-import { ReturnFullProductDto } from './dtos/return-full-product.dto';
+import { ReturnProductDeliveryPriceDto } from './dtos/return-product-delivery-price.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { ReturnProductDeliveryPriceDto } from './dtos/return-product-delivery-price.dto';
 
 @Injectable()
 export class ProductService {
@@ -69,7 +68,7 @@ export class ProductService {
       });
   }
 
-  async updateProduct(updateProduct: UpdateProductDto, productId: number): Promise<ReturnFullProductDto> {
+  async updateProduct(updateProduct: UpdateProductDto, productId: number): Promise<ProductEntity> {
     const product: ProductEntity = await this.findProductById(productId);
 
     return await this.productRepository.save({
