@@ -18,6 +18,11 @@ export class ProductController {
     return (await this.productService.findAll([], true)).map(product => new ReturnProductDto(product));
   }
 
+  @Get('/:productId/delivery/:cep')
+  async findDeliveryPrice(@Param('productId') productId: number, @Param('cep') cep: string): Promise<any> {
+    return this.productService.findDeliveryPrice(cep, productId);
+  }
+
   @Post()
   @Roles(UserType.Admin)
   @UsePipes(ValidationPipe)

@@ -1,13 +1,15 @@
 import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CorreiosService } from 'src/correios/correios.service';
+import { CdServiceEnum } from 'src/correios/enums/cd-service.enum';
+import { ProductMeasurementsDto } from 'src/correios/enums/product-measurements.dto';
 import { In, Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { CreateProductDto } from './dtos/create-product.dto';
-import { ProductEntity } from './entities/product.entity';
-import { UpdateProductDto } from './dtos/update-product.dto';
-import { ReturnFullProductDto } from './dtos/return-full-product.dto';
-import { find } from 'rxjs';
 import { CategoryCount } from './dtos/product-category-count';
+import { ReturnFullProductDto } from './dtos/return-full-product.dto';
+import { UpdateProductDto } from './dtos/update-product.dto';
+import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
 export class ProductService {
@@ -15,9 +17,9 @@ export class ProductService {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
-
     @Inject(forwardRef(() => CategoryService))
-    private readonly categoryService: CategoryService
+    private readonly categoryService: CategoryService,
+    private readonly correiosService: CorreiosService
   ) {}
 
 
@@ -94,5 +96,13 @@ export class ProductService {
       .select('product.category_id, COUNT(*) as total')
       .groupBy('product.category_id')
       .getRawMany();
+  }
+
+  async findDeliveryPrice(cep: string, productId: number): Promise<any> {
+    const product = await this.findProductById(productId);
+    const productMeasurements = new ProductMeasurementsDto(product);
+    const deliveryPrice = await this.correiosService.findDeliveryPrice(CdServiceEnum.PAC, cep, productMeasurements);
+
+    return deliveryPrice;
   }
 }

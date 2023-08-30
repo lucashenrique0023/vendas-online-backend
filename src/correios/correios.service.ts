@@ -7,11 +7,14 @@ import { CityEntity } from 'src/city/entities/city.entity';
 import { ResponseDeliveryPrice } from './dtos/response-delivery-price';
 import { ReturnCorreiosAddressDto } from './dtos/return-correios-address.dto';
 import { ReturnExternalAddressDto } from './dtos/return-external-address.dto';
+import { CdFormatEnum } from './enums/cd-format-enum';
+import { ProductMeasurementsDto } from './enums/product-measurements.dto';
 
 @Injectable()
 export class CorreiosService {
 
   URL_CORREIOS = process.env.URL_CEP_CORREIOS;
+  CEP_DELIVERY = process.env.CEP_DELIVERY;
 
   constructor(private readonly httpService: HttpService,
     private readonly cityService: CityService,
@@ -38,22 +41,23 @@ export class CorreiosService {
     return new ReturnExternalAddressDto(address, city?.id, city?.state?.id);
   }
 
-  async findDeliveryPrice(): Promise<ResponseDeliveryPrice> {
+  async findDeliveryPrice(cdServico: string, cep: string,
+    product: ProductMeasurementsDto): Promise<ResponseDeliveryPrice> {
     return new Promise((resolve) => {
       this.soapClient.CalcPrecoPrazo({
-        nCdServico: '40010',
-        sCepOrigem: '52041210',
-        sCepDestino: '52041211',
-        nVlPeso: 2,
-        nCdFormato: 1,
-        nVlComprimento: 30,
-        nVlAltura: 30,
-        nVlLargura: 30,
-        nVlDiametro: 30,
+        nCdServico: cdServico,
+        sCepOrigem: this.CEP_DELIVERY,
+        sCepDestino: cep,
+        nCdFormato: CdFormatEnum.BOX,
+        nVlPeso: product.weight,
+        nVlComprimento: product.length,
+        nVlAltura: product.height,
+        nVlLargura: product.width,
+        nVlDiametro: product.diameter,
         nCdEmpresa: '',
         sDsSenha: '',
         sCdMaoPropria: 'N',
-        nVlValorDeclarado: 0,
+        nVlValorDeclarado: product.productValue < 25 ? 0 : product.productValue,
         sCdAvisoRecebimento: 'N',
       },
         (err, res: ResponseDeliveryPrice) => {
