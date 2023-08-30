@@ -8,7 +8,7 @@ import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { ProductService } from './product.service';
 
-@Roles(UserType.Admin, UserType.User)
+@Roles(UserType.Admin, UserType.Root, UserType.User)
 @Controller('product')
 export class ProductController {
 
@@ -25,14 +25,14 @@ export class ProductController {
   }
 
   @Post()
-  @Roles(UserType.Admin)
+  @Roles(UserType.Admin, UserType.Root)
   @UsePipes(ValidationPipe)
   async createProduct(@Body() createProductDto: CreateProductDto): Promise<ProductEntity> {
     return this.productService.createProduct(createProductDto);
   }
 
   @Put('/:productId')
-  @Roles(UserType.Admin)
+  @Roles(UserType.Admin, UserType.Root)
   @UsePipes(ValidationPipe)
   async updateProduct(
     @Body() updateProductDto: UpdateProductDto,
@@ -41,7 +41,7 @@ export class ProductController {
   }
 
   @Delete('/:productId')
-  @Roles(UserType.Admin)
+  @Roles(UserType.Admin, UserType.Root)
   async deleteProduct(@Param('productId') productId: number): Promise<void> {
     await this.productService.deleteProduct(productId);
   }

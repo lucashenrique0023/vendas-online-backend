@@ -29,7 +29,7 @@ export class AddressController {
   }
 
   @Get()
-  @Roles(UserType.User, UserType.Admin)
+  @Roles(UserType.User, UserType.Admin, UserType.Root)
   async findAddressByUserId(
     @UserId() userId: number,
   ): Promise<ReturnAddressDto[]> {

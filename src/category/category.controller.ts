@@ -5,7 +5,7 @@ import { Roles } from '../decorators/roles.decorators';
 import { UserType } from '../user/enum/userType.enum';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 
-@Roles(UserType.Admin, UserType.User)
+@Roles(UserType.Admin, UserType.Root, UserType.User)
 @Controller('category')
 export class CategoryController {
 
@@ -17,7 +17,7 @@ export class CategoryController {
   }
 
   @Post()
-  @Roles(UserType.Admin)
+  @Roles(UserType.Admin, UserType.Root)
   @UsePipes(ValidationPipe)
   async createCategory(@Body() createCategoryDto: CreateCategoryDto): Promise<ReturnCategoryDto> {
     return new ReturnCategoryDto(await this.categoryService.createCategory(createCategoryDto));
