@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CorreiosService } from 'src/correios/correios.service';
 import { CdServiceEnum } from 'src/correios/enums/cd-service.enum';
 import { ProductMeasurementsDto } from 'src/correios/enums/product-measurements.dto';
-import { In, Repository } from 'typeorm';
+import { ILike, In, Like, Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { CategoryCount } from './dtos/product-category-count';
@@ -22,8 +22,27 @@ export class ProductService {
     private readonly correiosService: CorreiosService
   ) {}
 
+  async findAllPage(search?: string): Promise<ProductEntity[]> {
+    let findOptions = {};
 
-  async findAll(productId?: number[], relations?: boolean): Promise<ProductEntity[]> {
+    if (search) {
+      findOptions = {
+        where: {
+          name: ILike(`%${search}%`),
+        }
+      }
+    }
+    const products = await this.productRepository.find(findOptions)
+
+    if (!products || products.length === 0) {
+      throw new NotFoundException('Products Empty')
+    }
+
+    return products;
+  }
+
+  async findAll(
+    productId?: number[], relations?: boolean): Promise<ProductEntity[]> {
     let findOptions = {};
 
     if (productId && productId.length > 0) {
