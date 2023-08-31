@@ -6,6 +6,7 @@ import { CreateCategoryDto } from './dtos/create-category.dto';
 import { CategoryEntity } from './entities/category.entity';
 import { ReturnCategoryDto } from './dtos/return-category.dto';
 import { CategoryCount } from 'src/product/dtos/product-category-count';
+import { UpdateCategoryDto } from './dtos/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -96,5 +97,18 @@ export class CategoryService {
         if (result.affected === 0)
           throw new NotFoundException(`Category id: ${categoryId} not found.`);
       });;
+  }
+
+  async updateCategory(categoryId: number, updateCategoryDto: UpdateCategoryDto): Promise<CategoryEntity> {
+    const category = await this.findCategoryById(categoryId);
+
+    if (!category) {
+      throw new NotFoundException(`Category id: ${categoryId} not found.`);
+    }
+
+    return this.categoryRepository.save({
+      ...category,
+      ...updateCategoryDto
+    });
   }
 }
