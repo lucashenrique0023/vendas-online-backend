@@ -10,6 +10,10 @@ import { CategoryCount } from './dtos/product-category-count';
 import { ReturnProductDeliveryPriceDto } from './dtos/return-product-delivery-price.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
+import { Pagination, PaginationMeta } from 'src/dtos/pagination.dto';
+
+const DEFAULT_PAGE_SIZE: number = 10;
+const FIRST_PAGE: number = 1;
 
 @Injectable()
 export class ProductService {
@@ -22,8 +26,11 @@ export class ProductService {
     private readonly correiosService: CorreiosService
   ) {}
 
-  async findAllPage(search?: string): Promise<ProductEntity[]> {
+  async findAllPage(search?: string,
+    size = DEFAULT_PAGE_SIZE,
+    page = FIRST_PAGE): Promise<Pagination<ProductEntity[]>> {
     let findOptions = {};
+    const skip = (page - 1) * size;
 
     if (search) {
       findOptions = {
@@ -32,13 +39,20 @@ export class ProductService {
         }
       }
     }
-    const products = await this.productRepository.find(findOptions)
+    const [products, totalItems] = await this.productRepository.findAndCount(
+      {
+        ...findOptions,
+        take: size,
+        skip,
+      })
+
+    const totalPage = Math.ceil(totalItems / size)
 
     if (!products || products.length === 0) {
       throw new NotFoundException('Products Empty')
     }
 
-    return products;
+    return new Pagination(new PaginationMeta(Number(size), totalItems, Number(page), totalPage), products);
   }
 
   async findAll(

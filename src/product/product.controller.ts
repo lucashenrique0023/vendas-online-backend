@@ -7,6 +7,7 @@ import { ReturnProductDto } from './dtos/return-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { ProductService } from './product.service';
+import { Pagination } from 'src/dtos/pagination.dto';
 
 @Roles(UserType.Admin, UserType.Root, UserType.User)
 @Controller('product')
@@ -17,14 +18,16 @@ export class ProductController {
 
   @Get()
   async findAll(): Promise<ReturnProductDto[]> {
-    console.log('esse')
     return (await this.productService.findAll([], true)).map(product => new ReturnProductDto(product));
   }
 
   @Get('/page')
-  async findAllPaged(@Query('search') search: string): Promise<ReturnProductDto[]> {
-    console.log('outro')
-    return (await this.productService.findAllPage(search)).map(product => new ReturnProductDto(product));
+  async findAllPaged(
+    @Query('search') search?: string,
+    @Query('size') size?: number,
+    @Query('page') page?: number): Promise<Pagination<ReturnProductDto[]>> {
+    return (await this.productService.findAllPage(search, size, page))
+    //.map(product => new ReturnProductDto(product));
   }
 
   @Get('/:productId/delivery/:cep')
